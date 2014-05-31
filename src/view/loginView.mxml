@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		actionBarVisible="false"
+		title="loginView">
+	
+	<fx:Script>
+		<![CDATA[
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				navigator.pushView(mapView);
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Panel id="panel" width="100%" height="100%" fontFamily="黑体" fontSize="20"
+			 fontWeight="normal" title="登陆界面">
+		
+		<s:VGroup width="250" height="130" horizontalCenter="0" verticalCenter="-40" gap="0">
+			<s:BorderContainer width="100%" height="40" borderColor="0x000000" >
+					<s:layout>
+						<s:HorizontalLayout gap="0"/>
+					</s:layout>
+					<s:Group width="40" height="100%">
+						<s:Label fontSize="16" horizontalCenter="0" text="账号" verticalCenter="0"/>
+					</s:Group>
+					<s:Group width="100%" height="100%">
+						<s:TextInput id="txtID" width="100%" borderVisible="false"
+									 contentBackgroundColor="0xFFFFFF" focusAlpha="0" fontSize="16"
+									 verticalCenter="0"/>
+					</s:Group>
+				</s:BorderContainer>
+			
+			<s:BorderContainer width="100%" height="40" borderColor="0x000000" >
+				<s:layout>
+					<s:HorizontalLayout gap="0"/>
+				</s:layout>
+				<s:Group width="40" height="40">
+					<s:Label fontSize="16" horizontalCenter="0" text="密码" verticalCenter="0"/>
+				</s:Group>
+				<s:Group width="100%" height="40">
+					<s:TextInput id="txtPassword" width="100%" borderVisible="false"
+								 contentBackgroundColor="0xFFFFFF" displayAsPassword="true"
+								 focusAlpha="0" fontSize="16" verticalCenter="0"/>
+				</s:Group>
+			</s:BorderContainer>
+			<s:Group width="100%" height="100%">
+				<s:Button bottom="0" width="100%" height="40" label="登陆" fontSize="18"
+						  fontWeight="normal" skinClass="Skins.loginButtonSkin"
+						  click="button1_clickHandler(event)"/>
+			</s:Group>
+		</s:VGroup>
+		
+	</s:Panel>
+</s:View>

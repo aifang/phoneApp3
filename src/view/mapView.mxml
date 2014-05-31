@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:esri="http://www.esri.com/2008/ags"
+		actionBarVisible="false" destructionPolicy="never" title="mapView" xmlns:Component="Component.*"
+		>
+	
+	<fx:Script>
+		<![CDATA[
+			import Class.Commons;
+			
+			import Component.drawTools;
+			
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.events.DrawEvent;
+			import com.esri.ags.events.GeometryServiceEvent;
+			import com.esri.ags.events.QueryEvent;
+			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.tasks.supportClasses.Query;
+			import com.esri.ags.utils.GeometryUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			import mx.rpc.events.FaultEvent;
+			
+			
+			[Bindable]
+			public static var dgArr:ArrayCollection=new ArrayCollection();
+			
+			private function keyHandler(e:KeyboardEvent):void
+			{
+				if(e.keyCode==Keyboard.BACK)
+				{
+					navigator.popView();
+				}
+				else if(e.keyCode==Keyboard.MENU)
+				{
+					
+				}
+			}
+			
+			protected function backwardbtn_clickHandler(event:MouseEvent):void
+			{
+				navigator.popToFirstView();
+			}
+			
+			protected function forwardbtn_clickHandler(event:MouseEvent):void
+			{
+				navigator.pushView(resultView);
+			}
+			private var isShow:Boolean = false;
+			protected function Drawbtn_clickHandler(event:MouseEvent):void
+			{
+				if(!isShow)
+				{
+					showMenuMove.play();
+					isShow = true;
+				}
+				else
+				{
+					hideMenuMove.play();
+					isShow = false;
+				}
+			}
+			
+			protected function menu_clickHandler(event:MouseEvent):void
+			{
+				
+			}
+			
+			// Step 1. Draw something
+			protected function tbb_changeHandler(event:IndexChangeEvent):void
+			{
+				var selectedItem:Object = ButtonBar(event.currentTarget).selectedItem;
+				if (tbb.selectedIndex < 0)
+				{
+					// when toggling a tool off, deactivate it
+					myDrawTool.deactivate();
+				}
+				else
+				{
+					switch (selectedItem.label)
+					{
+						case "POLYLINE":
+						{
+							myDrawTool.activate(DrawTool.POLYLINE);
+//							spatialRel.dataProvider = spatialRelationshipOptions_linear;
+							break;
+						}
+						case "FREEHAND_POLYLINE":
+						{
+							myDrawTool.activate(DrawTool.FREEHAND_POLYLINE);
+//							spatialRel.dataProvider = spatialRelationshipOptions_linear;
+							break;
+						}
+						case "POLYGON":
+						{
+							myDrawTool.activate(DrawTool.POLYGON);
+//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							break;
+						}
+						case "FREEHAND_POLYGON":
+						{
+							myDrawTool.activate(DrawTool.FREEHAND_POLYGON);
+//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							break;
+						}
+						case "EXTENT":
+						{
+							myDrawTool.activate(DrawTool.EXTENT);
+//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							break;
+						}
+						case "CIRCLE":
+						{
+							myDrawTool.activate(DrawTool.CIRCLE);
+//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							break;
+						}
+						case "ELLIPSE":
+						{
+							myDrawTool.activate(DrawTool.ELLIPSE);
+//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							break;
+						}
+					}
+				}
+			}
+			
+			protected function myDrawTool_drawEndHandler(event:DrawEvent):void
+			{
+				// reset after finished drawing a feature				
+				myDrawTool.deactivate();
+				var geometry:Geometry = event.graphic.geometry;
+				if (geometry is Polygon && GeometryUtil.polygonSelfIntersecting(geometry as Polygon))
+				{
+					// Note: As of version 2.0, GeometryService returns geometries (instead of graphics).
+					myGeometryService.simplify([ geometry ]);
+				}
+				else
+				{
+					doQuery(geometry);
+				}
+			}
+			
+			protected function myGeometryService_simplifyCompleteHandler(event:GeometryServiceEvent):void
+			{
+				// Note: As of version 2.0, GeometryService returns geometries (instead of graphics)
+				doQuery(event.result[0] as Geometry);
+			}
+			
+			protected function doQuery(geom:Geometry):void
+			{
+				try
+				{
+					var query:Query = new Query();
+					query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
+					query.outFields=["*"]
+					query.geometry = geom;
+					query.returnGeometry = true;
+					queryTask.execute(query, new AsyncResponder(onResult, onFault));
+					
+					function onResult(featureSet:FeatureSet, token:Object = null):void
+					{
+						if (featureSet.features.length > 0)
+						{
+							for each (var myGraphic:Graphic in featureSet.features)
+							{
+								myGraphicsLayer.add(myGraphic);
+							}
+						}
+						else
+						{
+							Alert.show("未发现地块", "请再选一次");
+						}
+					}
+					function onFault(info:Object, token:Object = null):void
+					{
+						//Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+					}
+				}
+				catch (error:Error)
+				{
+					//	Alert.show(error.toString(), "myGeometryService_simplifyCompleteHandler error");
+					Alert.show("无法连接服务器");
+				}
+			}
+			
+			protected function queryTask_faultHandler(event:FaultEvent):void
+			{
+				Alert.show(event.fault.faultString + "\n\n" + event.fault.faultDetail, "QueryTask Fault " + event.fault.faultCode);
+			}
+			
+			protected function myGeometryService_faultHandler(event:FaultEvent):void
+			{
+				Alert.show(event.fault.faultString + "\n\n" + event.fault.faultDetail, "GeometryService Fault " + event.fault.faultCode);
+			}
+			
+			protected function queryTask_executeCompleteHandler(event:QueryEvent):void
+			{
+				var fields:Array = event.featureSet.fields;
+				var attributes:Array = event.featureSet.attributes;				
+				dgArr= new ArrayCollection(attributes);
+				resultView.arr=dgArr;
+				
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:Move target="{menu}" yTo="{-menu.height}" duration="100" id="showMenuMove"/>
+		<s:Move target="{menu}" yTo="{bottomBar.height}" duration="100" id="hideMenuMove"/>
+		<esri:DrawTool id="myDrawTool"
+					   drawEnd="myDrawTool_drawEndHandler(event)"
+					   graphicsLayer="{myGraphicsLayer}"
+					   map="{drawMap}">
+			<esri:fillSymbol>
+				<esri:SimpleFillSymbol id="yellowParcels"
+									   color="0xFFFF00"
+									   style="solid">
+					<esri:SimpleLineSymbol width="1"/>
+				</esri:SimpleFillSymbol>
+			</esri:fillSymbol>
+		</esri:DrawTool>
+		
+		<esri:GeometryService id="myGeometryService"
+							  fault="myGeometryService_faultHandler(event)"
+							  showBusyCursor="true"
+							  simplifyComplete="myGeometryService_simplifyCompleteHandler(event)"
+							  url="http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer"/>
+		
+		<esri:QueryTask id="queryTask"
+						executeComplete="queryTask_executeCompleteHandler(event)"
+						fault="queryTask_faultHandler(event)"
+						showBusyCursor="true"
+						url="http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/BloomfieldHillsMichigan/Parcels/MapServer/2"
+						useAMF="false"/>
+	</fx:Declarations>
+	<s:Group width="100%" height="100%">
+		
+		<esri:Map id="drawMap" width="100%" height="100%" logoVisible="false" zoomSliderVisible="false" >
+			<esri:ArcGISDynamicMapServiceLayer url="http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/BloomfieldHillsMichigan/Parcels/MapServer"/>
+			<esri:GraphicsLayer id="myGraphicsLayer"/>
+		</esri:Map>
+		
+		<s:Group y="415" width="100%" height="45">
+			<Component:drawTools id="menu" y="{bottomBar.height}" click="menu_clickHandler(event)"/>
+			<s:HGroup bottom="0" width="100%" height="45" gap="0" id="bottomBar">
+				<s:Button id="backwardbtn" width="45" height="45" icon="assets/backward.png" skinClass="Skins.loginButtonSkin"
+						  click="backwardbtn_clickHandler(event)"/>
+				<s:Button id="forwardbtn" width="45" height="45" icon="assets/forward.png" skinClass="Skins.loginButtonSkin"
+						  click="forwardbtn_clickHandler(event)"/>
+				<s:HGroup width="100%" height="100%" gap="0">
+					<s:Button id="drawToolsbtn" width="100%" height="100%" label="Draw" skinClass="Skins.loginButtonSkin"
+							  click="Drawbtn_clickHandler(event)"/>
+					<s:Button width="45" height="45" label="Clear" skinClass="Skins.loginButtonSkin"/>
+				</s:HGroup>
+				
+			</s:HGroup>
+		</s:Group>
+		
+	</s:Group>
+</s:View>
