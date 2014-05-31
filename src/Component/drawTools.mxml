@@ -3,8 +3,7 @@
 		xmlns:s="library://ns.adobe.com/flex/spark">
 	<fx:Script>
 		<![CDATA[
-			[Bindable]
-			public static var graphicType:String;
+			import view.mapView;
 			
 			private function getButtonID(event:MouseEvent):void
 			{
@@ -12,42 +11,42 @@
 				{
 					case "linebtn":
 					{
-						graphicType="linebtn";
+						mapView.drawType="POLYLINE"
 						break;
 					}
 					case "freeLinebtn":
 					{
-						graphicType="freeLinebtn";
+						mapView.drawType="FREEHAND_POLYLINE"
 						break;
 					}
 					case "polygonbtn":
 					{
-						graphicType="polygonbtn";
+						mapView.drawType="POLYGON"
 						break;
 					}
 					case "freePolygonbtn":
 					{
-						graphicType="freePolygonbtn";
+						mapView.drawType="FREEHAND_POLYGON"
 						break;
 					}
 					case "rectbtn":
 					{
-						graphicType="rectbtn";
+						mapView.drawType="EXTENT"
 						break;
 					}
 					case "circlebtn":
 					{
-						graphicType="circlebtn";
+						mapView.drawType="CIRCLE"
 						break;
 					}
 					case "ellipsebtn":
 					{
-						graphicType="ellipsebtn";
+						mapView.drawType="ELLIPSE"
 						break;
 					}
 					case "closebtn":
 					{
-						graphicType="closebtn";
+						mapView.drawType="CLOSE"
 						break;
 					}
 					default:
@@ -73,21 +72,21 @@
 	</s:Rect>
 	<s:TileGroup bottom="0" width="100%" height="91" horizontalGap="1" requestedRowCount="2"
 				 verticalGap="1">
-		<s:Button id="linebtn" width="79" height="45" click="buttonName(event)"
+		<s:Button id="linebtn" width="79" height="45" click="getButtonID(event)"
 				  icon="assets/i_draw_line.png" skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="freeLinebtn" width="79" height="45" click="buttonName(event)" icon="assets/i_draw_freeline.png"
+		<s:Button id="freeLinebtn" width="79" height="45" click="getButtonID(event)" icon="assets/i_draw_freeline.png"
 				  skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="polygonbtn" width="79" height="45" click="buttonName(event)" icon="assets/i_draw_poly.png"
+		<s:Button id="polygonbtn" width="79" height="45" click="getButtonID(event)" icon="assets/i_draw_poly.png"
 				  skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="freePolygonbtn" width="79" height="45" click="buttonName(event)" icon="assets/i_draw_freepoly.png"
+		<s:Button id="freePolygonbtn" width="79" height="45" click="getButtonID(event)" icon="assets/i_draw_freepoly.png"
 				  skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="rectbtn" width="79" height="45" click="buttonName(event)" icon="assets/i_draw_rect.png"
+		<s:Button id="rectbtn" width="79" height="45" click="getButtonID(event)" icon="assets/i_draw_rect.png"
 				  skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="circlebtn" width="79" height="45" click="buttonName(event)" icon="assets/i_draw_circle.png"
+		<s:Button id="circlebtn" width="79" height="45" click="getButtonID(event)" icon="assets/i_draw_circle.png"
 				  skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="ellipsebtn" width="79" height="45" click="buttonName(event)" icon="assets/i_draw_ellipse.png"
+		<s:Button id="ellipsebtn" width="79" height="45" click="getButtonID(event)" icon="assets/i_draw_ellipse.png"
 				  skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="closebtn" width="79" height="45" click="buttonName(event)" label="Close"
+		<s:Button id="closebtn" width="79" height="45" click="getButtonID(event)" label="Close"
 				  skinClass="Skins.loginButtonSkin"/>
 	</s:TileGroup>
 </s:Group>

@@ -30,6 +30,8 @@
 			
 			[Bindable]
 			public static var dgArr:ArrayCollection=new ArrayCollection();
+			[Bindable]
+			public static var drawType:String;
 			
 			private function keyHandler(e:KeyboardEvent):void
 			{
@@ -69,21 +71,22 @@
 			
 			protected function menu_clickHandler(event:MouseEvent):void
 			{
-				
+				Draw(drawType);
+					
 			}
 			
 			// Step 1. Draw something
-			protected function tbb_changeHandler(event:IndexChangeEvent):void
+			protected function Draw(shape:String):void
 			{
-				var selectedItem:Object = ButtonBar(event.currentTarget).selectedItem;
-				if (tbb.selectedIndex < 0)
+				
+				if (shape=="")
 				{
 					// when toggling a tool off, deactivate it
 					myDrawTool.deactivate();
 				}
 				else
 				{
-					switch (selectedItem.label)
+					switch (shape)
 					{
 						case "POLYLINE":
 						{
@@ -125,6 +128,11 @@
 						{
 							myDrawTool.activate(DrawTool.ELLIPSE);
 //							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							break;
+						}
+						case "CLOSE":
+						{
+							
 							break;
 						}
 					}
@@ -249,7 +257,7 @@
 		</esri:Map>
 		
 		<s:Group y="415" width="100%" height="45">
-			<Component:drawTools id="menu" y="{bottomBar.height}" click="menu_clickHandler(event)"/>
+			<Component:drawTools id="menu" y="{bottomBar.height}" click="menu_clickHandler(event)" />
 			<s:HGroup bottom="0" width="100%" height="45" gap="0" id="bottomBar">
 				<s:Button id="backwardbtn" width="45" height="45" icon="assets/backward.png" skinClass="Skins.loginButtonSkin"
 						  click="backwardbtn_clickHandler(event)"/>
