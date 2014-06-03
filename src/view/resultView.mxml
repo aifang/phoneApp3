@@ -39,8 +39,8 @@
 				<s:columns>
 					<s:ArrayList>
 						<s:GridColumn id="column1" dataField="OWNERNME1" headerText="Owner"/>
-						<s:GridColumn id="column2" dataField="OWNERNME1" headerText="OWNERNME1"/>				
-						<s:GridColumn id="column3" dataField="OWNERNME1" headerText="OWNERNME1"/>
+						<s:GridColumn id="column2" dataField="USEDSCRP" headerText="Usedscrp"/>				
+						<s:GridColumn id="column3" dataField="SITEADDRESS" headerText="SiteAddress"/>
 					</s:ArrayList>
 				</s:columns>
 			</s:DataGrid>

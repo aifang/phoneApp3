@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="CameraView" actionBarVisible="false">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			
+			import spark.components.Image;
+			import spark.components.VideoDisplay;
+			import spark.components.ViewNavigator;
+			
+			private var cam:Camera;
+			private var video:CameraUI;
+			private var uic:UIComponent;
+			
+			protected function cameraButton_clickHandler(event:MouseEvent):void
+			{
+				if(!cam){
+					trace("whut");
+					cameragroup.removeAllElements();
+					this.cam=Camera.getCamera();
+					cam.setQuality(0,100);
+					
+					cam.setMode(cameragroup.width, cameragroup.height, 30, false);
+					if(cam){
+						trace("camera added");
+						this.video=new CameraUI();
+						video.addEventListener(MediaEvent.COMPLETE,onComplete);
+						//this.video=new Video(cameragroup.width, cameragroup.height);
+						
+						//video.attachCamera(cam);
+						
+						
+						this.uic=new UIComponent();
+						uic.addChild(video);
+						
+						var m:Matrix=new Matrix();
+						m.rotate(Math.PI/2);
+						video.transform.matrix=m;
+						
+						var m2:Matrix = new Matrix();
+						m2.translate((video.width+cameragroup.width/4)-this.frame.x, 5);
+						uic.transform.matrix=m2;
+						
+						cameragroup.addElement(video);
+						cameraButton.label="shoot";
+						
+						
+						
+					}
+				}
+			}
+			
+			protected function view1_activateHandler(event:Event):void
+			{
+				this.cameraButton.label="shoot";
+			}
+			
+			private function captureImage(event:MouseEvent):void {
+				if (CameraUI.isSupported){
+					video.launch(MediaType.IMAGE);
+				}
+			}
+			
+			private function onComplete(event:MediaEvent):void{
+				var mp:MediaPromise = event.data;
+				//mediaPath is a text object which is on my Flash CS5 stage
+				mediaPath.text = mp.file.name + "\n" + mp.file.url;
+				//loader is a flash.containers.UILoader which is on my Flash CS5 stage
+				//loader.source = mp.file.url;
+			}
+
+		]]>
+	</fx:Script>
+	
+	<s:VGroup width="100%" height="100%" horizontalAlign="center" paddingBottom="30" paddingLeft="10" paddingRight="10" paddingTop="30">
+		<s:Group id="frame" width="100%" height="100%">
+			<s:Rect width="100%" height="100%">
+				<s:fill>
+					<s:SolidColor color="0x000000" alpha="0.2"/>
+				</s:fill>
+			</s:Rect>
+			<s:Group id="cameragroup" width="210" height="220"/>
+		</s:Group>
+		
+		<s:Spacer height="100%"/>
+		<s:HGroup width="100%" horizontalAlign="center">
+			<s:Label id="mediaPath"/>
+			<s:Button id="cameraButton" width="50%" height="80" label="start" click="cameraButton_clickHandler(event)"/>
+		</s:HGroup>
+	</s:VGroup>
+</s:View>

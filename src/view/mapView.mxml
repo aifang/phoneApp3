@@ -7,7 +7,7 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import Class.Commons;
+
 			
 			import Component.drawTools;
 			
@@ -15,11 +15,17 @@
 			import com.esri.ags.Graphic;
 			import com.esri.ags.events.DrawEvent;
 			import com.esri.ags.events.GeometryServiceEvent;
+			import com.esri.ags.events.MapMouseEvent;
 			import com.esri.ags.events.QueryEvent;
 			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.geometry.MapPoint;
 			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.portal.WebMapUtil;
 			import com.esri.ags.tasks.supportClasses.Query;
 			import com.esri.ags.utils.GeometryUtil;
+			import com.esri.ags.utils.WebMercatorUtil;
+			
+			import flashx.textLayout.debug.assert;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -234,6 +240,21 @@
 				resultView.arr=dgArr;
 				
 			}
+			
+			protected function drawMap_mapClickHandler(event:MapMouseEvent):void
+			{
+				var pMapPoint:MapPoint=WebMercatorUtil.webMercatorToGeographic(event.mapPoint) as MapPoint;
+				drawMap.infoWindow.label="You clicked at "+event.mapPoint.x.toFixed(1)+"/"+event.mapPoint.y.toFixed(1);
+				drawMap.infoWindow.show((event.mapPoint));//"show the click"
+				
+			}
+			
+
+			protected function takePictureBtn_clickHandler(event:MouseEvent):void
+			{
+				navigator.pushView(CameraView);
+			}
+			
 		]]>
 	</fx:Script>
 
@@ -269,9 +290,16 @@
 	</fx:Declarations>
 	<s:Group width="100%" height="100%">
 		
-		<esri:Map id="drawMap" width="100%" height="100%" logoVisible="false" zoomSliderVisible="false" >
+		<esri:Map id="drawMap" width="100%" height="100%" logoVisible="false" zoomSliderVisible="false" mapClick="drawMap_mapClickHandler(event)" >
 			<esri:ArcGISDynamicMapServiceLayer url="http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/BloomfieldHillsMichigan/Parcels/MapServer"/>
 			<esri:GraphicsLayer id="myGraphicsLayer"/>
+			<esri:infoWindowContent >
+				<s:HGroup width="50" height="50">
+					<s:Label id="mediaPath" text="mylabel" />
+					<s:Button id="takePictureBtn" label="button" click="takePictureBtn_clickHandler(event)"/>
+					
+				</s:HGroup>
+			</esri:infoWindowContent>
 		</esri:Map>
 		
 		<s:Group bottom="0" width="100%" height="45">
