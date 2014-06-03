@@ -229,3 +229,5 @@ pip-log.txt
 *.actionScriptProperties
 *.flexProperties
 *.actionScriptProperties
+
+bin-debug/phoneApp3.swf
