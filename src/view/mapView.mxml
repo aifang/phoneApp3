@@ -256,9 +256,9 @@
 			<esri:GraphicsLayer id="myGraphicsLayer"/>
 		</esri:Map>
 		
-		<s:Group y="415" width="100%" height="45">
+		<s:Group bottom="0" width="100%" height="45">
 			<Component:drawTools id="menu" y="{bottomBar.height}" click="menu_clickHandler(event)" />
-			<s:HGroup bottom="0" width="100%" height="45" gap="0" id="bottomBar">
+			<s:HGroup id="bottomBar" bottom="0" width="100%" height="45" gap="0">
 				<s:Button id="backwardbtn" width="45" height="45" icon="assets/backward.png" skinClass="Skins.loginButtonSkin"
 						  click="backwardbtn_clickHandler(event)"/>
 				<s:Button id="forwardbtn" width="45" height="45" icon="assets/forward.png" skinClass="Skins.loginButtonSkin"

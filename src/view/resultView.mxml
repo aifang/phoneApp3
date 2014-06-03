@@ -6,6 +6,8 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			
+			import spark.events.GridSelectionEvent;
+			
 			[Bindable]
 			public static var arr:ArrayCollection=new ArrayCollection();
 			
@@ -13,6 +15,17 @@
 			{
 				navigator.popView();
 			}
+			
+			protected function dataGrid_selectionChangeHandler(event:GridSelectionEvent):void
+			{
+				txtArea.text="";
+				var row:Object=dataGrid.dataProvider.getItemAt(dataGrid.selectedIndex);
+				for(var i:String in row)
+				{
+					txtArea.text=txtArea.text+i+":"+row[i]+"\n";
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -22,28 +35,19 @@
 	<s:VGroup width="100%" height="100%" gap="0">
 		
 		<s:Group width="100%" height="100%">
-			<s:DataGrid id="dataGrid" width="100%" requestedRowCount="7">
+			<s:DataGrid id="dataGrid" width="100%" requestedRowCount="7" dataProvider="{arr}" selectionChange="dataGrid_selectionChangeHandler(event)">
 				<s:columns>
 					<s:ArrayList>
-						<s:GridColumn dataField="dataField1" headerText="Column1"></s:GridColumn>
-						<s:GridColumn dataField="dataField2" headerText="Column2"></s:GridColumn>
-						<s:GridColumn dataField="dataField3" headerText="Column3"></s:GridColumn>
+						<s:GridColumn id="column1" dataField="OWNERNME1" headerText="Owner"/>
+						<s:GridColumn id="column2" dataField="OWNERNME1" headerText="OWNERNME1"/>				
+						<s:GridColumn id="column3" dataField="OWNERNME1" headerText="OWNERNME1"/>
 					</s:ArrayList>
 				</s:columns>
-				<s:typicalItem>
-					<fx:Object dataField1="Sample Data" dataField2="Sample Data" dataField3="Sample Data"></fx:Object>
-				</s:typicalItem>
-				<s:ArrayList>
-					<fx:Object dataField1="data1" dataField2="data1" dataField3="data1"></fx:Object>
-					<fx:Object dataField1="data2" dataField2="data2" dataField3="data2"></fx:Object>
-					<fx:Object dataField1="data3" dataField2="data3" dataField3="data3"></fx:Object>
-					<fx:Object dataField1="data4" dataField2="data4" dataField3="data4"></fx:Object>
-				</s:ArrayList>
 			</s:DataGrid>
 		</s:Group>
 		
 		<s:Group width="100%" height="100%">
-			<s:TextArea width="100%" height="100%" editable="false">
+			<s:TextArea id="txtArea" width="100%" height="100%" editable="false">
 				
 			</s:TextArea>
 		</s:Group>
