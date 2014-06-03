@@ -217,3 +217,15 @@ pip-log.txt
 *.actionScriptProperties
 *.swf
 *.flexProperties
+
+.actionScriptProperties
+
+.flexProperties
+
+*.swf
+*.actionScriptProperties
+*.flexProperties
+*.png
+*.actionScriptProperties
+*.flexProperties
+*.actionScriptProperties
