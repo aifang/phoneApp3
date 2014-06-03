@@ -69,6 +69,19 @@
 				}
 			}
 			
+			protected function toggleDrawBtn():void {
+				if(!isShow)
+				{
+					showMenuMove.play();
+					isShow = true;
+				}
+				else
+				{
+					hideMenuMove.play();
+					isShow = false;
+				}
+			}
+			
 			protected function menu_clickHandler(event:MouseEvent):void
 			{
 				Draw(drawType);
@@ -91,52 +104,57 @@
 						case "POLYLINE":
 						{
 							myDrawTool.activate(DrawTool.POLYLINE);
-//							spatialRel.dataProvider = spatialRelationshipOptions_linear;
+							toggleDrawBtn();
 							break;
 						}
 						case "FREEHAND_POLYLINE":
 						{
 							myDrawTool.activate(DrawTool.FREEHAND_POLYLINE);
-//							spatialRel.dataProvider = spatialRelationshipOptions_linear;
+							toggleDrawBtn();
 							break;
 						}
 						case "POLYGON":
 						{
 							myDrawTool.activate(DrawTool.POLYGON);
-//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							toggleDrawBtn();
 							break;
 						}
 						case "FREEHAND_POLYGON":
 						{
 							myDrawTool.activate(DrawTool.FREEHAND_POLYGON);
-//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							toggleDrawBtn();
 							break;
 						}
 						case "EXTENT":
 						{
 							myDrawTool.activate(DrawTool.EXTENT);
-//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							toggleDrawBtn();
 							break;
 						}
 						case "CIRCLE":
 						{
 							myDrawTool.activate(DrawTool.CIRCLE);
-//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							toggleDrawBtn();
 							break;
 						}
 						case "ELLIPSE":
 						{
 							myDrawTool.activate(DrawTool.ELLIPSE);
-//							spatialRel.dataProvider = spatialRelationshipOptions_area;
+							toggleDrawBtn();
 							break;
 						}
 						case "CLOSE":
 						{
-							
+							toggleDrawBtn();
 							break;
 						}
 					}
 				}
+			}
+			
+			protected function clearMapGraphics():void{
+				myDrawTool.deactivate();
+				myGraphicsLayer.clear();
 			}
 			
 			protected function myDrawTool_drawEndHandler(event:DrawEvent):void
@@ -256,7 +274,7 @@
 			<esri:GraphicsLayer id="myGraphicsLayer"/>
 		</esri:Map>
 		
-		<s:Group y="415" width="100%" height="45">
+		<s:Group bottom="0" width="100%" height="45">
 			<Component:drawTools id="menu" y="{bottomBar.height}" click="menu_clickHandler(event)" />
 			<s:HGroup bottom="0" width="100%" height="45" gap="0" id="bottomBar">
 				<s:Button id="backwardbtn" width="45" height="45" icon="assets/backward.png" skinClass="Skins.loginButtonSkin"
@@ -266,7 +284,7 @@
 				<s:HGroup width="100%" height="100%" gap="0">
 					<s:Button id="drawToolsbtn" width="100%" height="100%" label="Draw" skinClass="Skins.loginButtonSkin"
 							  click="Drawbtn_clickHandler(event)"/>
-					<s:Button width="45" height="45" label="Clear" skinClass="Skins.loginButtonSkin"/>
+					<s:Button width="45" height="45" label="Clear" skinClass="Skins.loginButtonSkin" click="clearMapGraphics()"/>
 				</s:HGroup>
 				
 			</s:HGroup>
