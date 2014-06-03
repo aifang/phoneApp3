@@ -2,55 +2,104 @@
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		xmlns:s="library://ns.adobe.com/flex/spark" title="CameraView" actionBarVisible="false"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
-		creationComplete="windowedapplication1_creationCompleteHandler(event)">
-
-	<fx:Script>
-		<![CDATA[
-			import flash.filters.ColorMatrixFilter;
-			
-			import mx.events.FlexEvent;
-			private var myCam:CameraUI;
-			
-			protected function button1_clickHandler(event:MouseEvent):void
-			{
-				theImage.filters = [];
-				if (CameraUI.isSupported){
-					myCam.launch(MediaType.IMAGE);
-				}
-			}
-			
-			protected function windowedapplication1_creationCompleteHandler(event:FlexEvent):void
-			{
-				if (CameraUI.isSupported){
-					myCam = new CameraUI();
-					myCam.addEventListener(MediaEvent.COMPLETE, onComplete);
-				}
-			}
-			
-			private function onComplete(evt:MediaEvent):void{
-				theImage.source = evt.data.file.url;
-			}
-			
-			private function transformImage():void
-			{
-				var matrixArray:Array =[ .33,.33,.33,0,0,
-					.33,.33,.33,0,0,
-					.33,.33,.33,0,0,
-					0,0,0,1,0];
-				var blackWhiteFilter:ColorMatrixFilter = new ColorMatrixFilter(matrixArray);
+		>
+		<fx:Script>
+			<![CDATA[
+				import mx.events.CloseEvent;
+				import mx.rpc.events.FaultEvent;
+				import mx.rpc.events.ResultEvent;
+				import mx.controls.Alert;
 				
-				theImage.filters = [blackWhiteFilter];
-			}
-		]]>
-	</fx:Script>
-	<fx:Declarations>
+				private static const DEFAULT_CAMERA_WIDTH:Number = 320;
+				private static const DEFAULT_CAMERA_HEIGHT:Number = 240;
+				
+				//定义一个摄像头
+				private var camera:Camera; 
+				//定义一个本地视频
+				private var localVideo:Video; 
+				//定义视频截图
+				private var videoBitmapData:BitmapData; 
+				
+				
+				//初始化摄像头
+				private function initCamera():void
+				{
+					//打开摄像头
+					camera = Camera.getCamera("0");
+					if(camera == null && Camera.names.length <= 0                                                             )
+					{
+						Alert.show("没有找到摄像头，是否重新查找!", "提示", Alert.OK|Alert.NO, this, onInitCamera);
+						return;
+					}
+					
+					camera.addEventListener(StatusEvent.STATUS,onCameraStatusHandler);
+					//将摄像头的捕获模式设置为最符合指定要求的本机模式.
+					camera.setMode(DEFAULT_CAMERA_WIDTH,DEFAULT_CAMERA_HEIGHT,30);
+					//设置每秒的最大带宽或当前输出视频输入信号所需的画面质量
+					camera.setQuality(144,85);
+					localVideo = new Video();
+					localVideo.width = DEFAULT_CAMERA_WIDTH;
+					localVideo.height = DEFAULT_CAMERA_HEIGHT;
+					//正在捕获视频数据的 Camera 对象
+					localVideo.attachCamera(camera);
+					cameraVideo.addChild(localVideo);
+					//USB 视频设备
+					trace(Camera.names.length+"");
+				}
+				
+				//拍照按钮事件，进行视频截图
+				private function snapshotPicture():void
+				{
+					videoBitmapData = new BitmapData(DEFAULT_CAMERA_WIDTH,DEFAULT_CAMERA_HEIGHT);
+					videoBitmapData.draw(cameraVideo,new Matrix());
+					
+					var videoBitmap:Bitmap = new Bitmap(videoBitmapData);
+					imgPicture.addChild(videoBitmap);
+					//				imgPicture.source = videoBitmap;
+				}
+				
+				
+				//检测摄像头权限事件
+				private function onCameraStatusHandler(event:StatusEvent):void
+				{
+					if(!camera.muted)
+					{
+						shootingBtn.enabled = true;
+					}
+					else
+					{
+						Alert.show("无法链接到活动摄像头，是否重新检测，请充许使用摄像头！", "提示", Alert.OK|Alert.NO, this, onInitCamera);
+					}
+					camera.removeEventListener(StatusEvent.STATUS, onCameraStatusHandler);
+				}
+				
+				//当摄像头不存在，或连接不正常时重新获取
+				private function onInitCamera(event:CloseEvent):void
+				{
+					if(event.detail == Alert.OK)
+					{
+						initCamera();
+					}
+				}
+				
+			]]>
+		</fx:Script>
 		
-	</fx:Declarations>
-	
-	<s:VGroup width="100%" height="100%">
-		<s:Button  click="button1_clickHandler(event)"  label="TAKE A PICTURE" />
-		<s:Button  click="transformImage()"  label="APPLY FILTER" />
-		<mx:Image id="theImage" height="240"  width="100%" />
-	</s:VGroup>
+		<s:Group width="100%" height="100%">
+			<s:Panel x="8" y="6" width="250" height="187" backgroundColor="#00ffffff" title="视频拍照">
+				<s:Group width="320" height="240">
+					<s:VideoDisplay x="0" y="0" width="270" height="240" id="cameraVideo" />
+				</s:Group>
+				<s:controlBarContent>
+					<s:Button id="shootingBtn" label="拍照" click="snapshotPicture()"/>
+					<s:Button id="connectionBtn" label="连接" click="initCamera()"/>
+				</s:controlBarContent>
+			</s:Panel>
+			
+			<s:Panel title="拍照图片" x="10" y="242" width="180" height="200" >
+				<s:Image id="imgPicture" x="0" y="0" width="160" height="120" />
+			</s:Panel>
+		</s:Group>
+
 	
 </s:View>
