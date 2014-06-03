@@ -5,10 +5,10 @@
 		>
 		<fx:Script>
 			<![CDATA[
+				import mx.controls.Alert;
 				import mx.events.CloseEvent;
 				import mx.rpc.events.FaultEvent;
 				import mx.rpc.events.ResultEvent;
-				import mx.controls.Alert;
 				
 				private static const DEFAULT_CAMERA_WIDTH:Number = 320;
 				private static const DEFAULT_CAMERA_HEIGHT:Number = 240;
@@ -20,6 +20,29 @@
 				//定义视频截图
 				private var videoBitmapData:BitmapData; 
 				
+				
+				
+				var file:File=File.applicationStroageDirectory.resovePath("hello.text");
+				//创建文件夹，并且给文件夹中添加文件
+				import flash.filesystem.FileStream;
+				import flash.filesystem.FileMode
+					var folder:File=File.applicationDirectory.resolvePath("greetings");
+				if(!folder.exists)
+				{
+					folder.createDirectory();
+				}
+				var file:File=folder.resolvePath("hello.txt");
+				//读文件：
+				var fileStream:FileStream=new FileStream();
+				fileStream.open(file,FileMode.READ);
+				var st:String=fileStream.readUTFBytes(fileStream.bytesAvailable);
+				fileStram.close();
+				trace(st)
+				fileStream.close();
+				//delete file
+				file.deleteFile();
+				//delete directory
+				file.deleteDirectory(true)
 				
 				//初始化摄像头
 				private function initCamera():void
@@ -54,8 +77,8 @@
 					videoBitmapData.draw(cameraVideo,new Matrix());
 					
 					var videoBitmap:Bitmap = new Bitmap(videoBitmapData);
-					imgPicture.addChild(videoBitmap);
-					//				imgPicture.source = videoBitmap;
+					//imgPicture.addChild(videoBitmap);
+					imgPicture.source = videoBitmap;
 				}
 				
 				
