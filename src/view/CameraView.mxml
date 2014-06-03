@@ -6,6 +6,8 @@
 		>
 		<fx:Script>
 			<![CDATA[
+				import flash.sampler.NewObjectSample;
+				
 				import mx.controls.Alert;
 				import mx.events.CloseEvent;
 				import mx.rpc.events.FaultEvent;
@@ -23,27 +25,29 @@
 				
 				
 				
-				var file:File=File.applicationStroageDirectory.resovePath("hello.text");
-				//创建文件夹，并且给文件夹中添加文件
-				import flash.filesystem.FileStream;
-				import flash.filesystem.FileMode
-					var folder:File=File.applicationDirectory.resolvePath("greetings");
-				if(!folder.exists)
-				{
-					folder.createDirectory();
-				}
-				var file:File=folder.resolvePath("hello.txt");
-				//读文件：
-				var fileStream:FileStream=new FileStream();
-				fileStream.open(file,FileMode.READ);
-				var st:String=fileStream.readUTFBytes(fileStream.bytesAvailable);
-				fileStram.close();
-				trace(st)
-				fileStream.close();
-				//delete file
-				file.deleteFile();
-				//delete directory
-				file.deleteDirectory(true)
+//				var file:File=File.applicationStroageDirectory.resovePath("hello.text");
+//				//创建文件夹，并且给文件夹中添加文件
+//				import flash.filesystem.FileStream;
+//				import flash.filesystem.FileMode
+//					var folder:File=File.applicationDirectory.resolvePath("greetings");
+//				if(!folder.exists)
+//				{
+//					folder.createDirectory();
+//				}
+//				var file:File=folder.resolvePath("hello.txt");
+//				//读文件：
+//				var fileStream:FileStream=new FileStream();
+//				fileStream.open(file,FileMode.READ);
+//				var st:String=fileStream.readUTFBytes(fileStream.bytesAvailable);
+//				fileStram.close();
+//				trace(st)
+//				fileStream.close();
+//				//delete file
+//				file.deleteFile();
+//				//delete directory
+//				file.deleteDirectory(true)
+//				var file:File=File.applicationStorageDirectory.resolvePath("1.bmp");
+				var folder:File=File.applicationStorageDirectory.resolvePath("takePirture");
 				
 				//初始化摄像头
 				private function initCamera():void
@@ -107,7 +111,18 @@
 				}
 				
 				private function saveImage():void{
-					
+					if(folder.exists==false)
+					{
+						
+						folder.createDirectory();
+						var file:File=folder.resolvePath("1.bmp");
+						
+					}
+					var fileStream:FileStream=new FileStream();
+					fileStream.open(file,FileMode.WRITE);
+					fileStream.writeObject(imgPicture.source);
+					fileStream.close();
+					Alert.show("ok","1");
 				}
 				
 			]]>
