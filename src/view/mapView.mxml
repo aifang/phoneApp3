@@ -262,9 +262,33 @@
 			private function cameraUIComplete(evt:MediaEvent):void
 			{
 				mediaPath.text= evt.data.file.url;
-				imgPicture.source = evt.data;
-				imgPicture.visible = true;
+//				imgPicture.source= evt.data.file;
+//				imgPicture.visible = true;
 				//editBtn.visible = true;
+				
+			}
+			private function onImageLoaded(event:Event):void
+			{
+				var bitmapData:BitmapData=Bitmap(event.target.content).bitmapData;
+				var bitmap:Bitmap=new Bitmap(bitmapData);
+				var isPortrait:Boolean=(bitmapData.height/bitmapData.width)>1.0;
+				var forRatio:int=Math.min(stage.stageHeight,stage.stageWidth);
+				var ratio:Number;
+				if(isPortrait)
+				{
+					ratio=forRatio/bitmapData.width;
+				}
+				else 
+				{
+					ratio=forRatio/bitmapData.height;
+				}
+				bitmap.width=bitmapData.width*ratio;
+				bitmap.height=bitmapData.height*ratio;
+				if(!isPortrait){
+					bitmap.y=stage.stageHeight;
+					bitmap.rotation=-90;
+				}
+				addChild(bitmap);
 			}
 
 		]]>
@@ -309,7 +333,7 @@
 				<s:VGroup width="100" height="100">
 					<s:Label id="mediaPath" text="mylabel" width="100%" height="20"/>
 					<s:Button id="takePictureBtn" width="45" height="45" label="button" click="takePictureBtn_clickHandler(event)"/>
-					<s:Image id="imgPicture"  width="100%" height="100%" />
+					<s:BitmapImage id="imgPicture"  width="100%" height="100%" />
 				</s:VGroup>
 			</esri:infoWindowContent>
 		</esri:Map>
