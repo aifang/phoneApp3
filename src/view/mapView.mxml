@@ -205,6 +205,7 @@
 							for each (var myGraphic:Graphic in featureSet.features)
 							{
 								myGraphicsLayer.add(myGraphic);
+								
 							}
 						}
 						else
@@ -271,42 +272,12 @@
 			
 			private function cameraUIComplete(evt:MediaEvent):void
 			{
-				mediaPath.text= evt.data.file.url;
-
-//				imgPicture.source= evt.data.file;
-//				imgPicture.visible = true;
-
-				path = mediaPath.text;
-//				imgPicture.source = evt.data;
-//				imgPicture.visible = true;
-
-				//editBtn.visible = true;
+//				mediaPath.text= evt.data.file.url;
+				imgPicture.source=evt.data.file.url;
+				path = evt.data.file.url;
+				saveToDb();
+			}
 				
-			}
-			private function onImageLoaded(event:Event):void
-			{
-				var bitmapData:BitmapData=Bitmap(event.target.content).bitmapData;
-				var bitmap:Bitmap=new Bitmap(bitmapData);
-				var isPortrait:Boolean=(bitmapData.height/bitmapData.width)>1.0;
-				var forRatio:int=Math.min(stage.stageHeight,stage.stageWidth);
-				var ratio:Number;
-				if(isPortrait)
-				{
-					ratio=forRatio/bitmapData.width;
-				}
-				else 
-				{
-					ratio=forRatio/bitmapData.height;
-				}
-				bitmap.width=bitmapData.width*ratio;
-				bitmap.height=bitmapData.height*ratio;
-				if(!isPortrait){
-					bitmap.y=stage.stageHeight;
-					bitmap.rotation=-90;
-				}
-				addChild(bitmap);
-			}
-			
 			private function saveToDb():void{
 				if(flag != 1){
 					initDB();
@@ -321,6 +292,22 @@
 				stmt.parameters[':ycorr'] = ycorr;
 				stmt.parameters[':path'] = path;
 				stmt.execute();
+				
+				var stmt2:SQLStatement = new SQLStatement();
+				stmt2.sqlConnection = dbConnection;
+				stmt2.text = "SELECT * FROM photos WHERE username = (:username)";
+				stmt2.parameters[':username'] = loginView.usrName;
+				stmt2.execute();
+				
+				var result:SQLResult = stmt2.getResult(); 
+				
+				try{
+					var row:Object = result.data[0]; 
+					Alert.show(row.path);
+				}
+				catch(error:Error){
+					Alert.show("error");
+				}
 			}
 			
 			private var dbConnection:SQLConnection = new SQLConnection;
