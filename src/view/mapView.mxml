@@ -33,6 +33,8 @@
 			import mx.rpc.AsyncResponder;
 			import mx.rpc.events.FaultEvent;
 			
+			private var flag:uint = 0;
+			
 			
 			[Bindable]
 			public static var dgArr:ArrayCollection=new ArrayCollection();
@@ -241,10 +243,15 @@
 				
 			}
 			
+			private var xcorr:String;
+			private var ycorr:String;
+			
 			protected function drawMap_mapClickHandler(event:MapMouseEvent):void
 			{
 				var pMapPoint:MapPoint=WebMercatorUtil.webMercatorToGeographic(event.mapPoint) as MapPoint;
-				drawMap.infoWindow.label="You clicked at "+event.mapPoint.x.toFixed(1)+"/"+event.mapPoint.y.toFixed(1);
+				xcorr = event.mapPoint.x.toFixed(1);
+				ycorr = event.mapPoint.y.toFixed(1)
+				drawMap.infoWindow.label="You clicked at "+xcorr+"/"+ycorr;
 				drawMap.infoWindow.show((event.mapPoint));//"show the click"
 				
 			}
@@ -259,11 +266,20 @@
 				camera.addEventListener(MediaEvent.COMPLETE, cameraUIComplete);
 
 			}
+			
+			private var path:String;
+			
 			private function cameraUIComplete(evt:MediaEvent):void
 			{
 				mediaPath.text= evt.data.file.url;
+
 //				imgPicture.source= evt.data.file;
 //				imgPicture.visible = true;
+
+				path = mediaPath.text;
+//				imgPicture.source = evt.data;
+//				imgPicture.visible = true;
+
 				//editBtn.visible = true;
 				
 			}
@@ -289,6 +305,34 @@
 					bitmap.rotation=-90;
 				}
 				addChild(bitmap);
+			}
+			
+			private function saveToDb():void{
+				if(flag != 1){
+					initDB();
+					flag ++;
+				}
+				
+				var stmt:SQLStatement = new SQLStatement();
+				stmt.sqlConnection = dbConnection;
+				stmt.text = "INSERT INTO photos (username, xcorr, ycorr, path) VALUES ((:username), (:xcorr), (:ycorr), (:path))";
+				stmt.parameters[':username'] = loginView.usrName;
+				stmt.parameters[':xcorr'] = xcorr;
+				stmt.parameters[':ycorr'] = ycorr;
+				stmt.parameters[':path'] = path;
+				stmt.execute();
+			}
+			
+			private var dbConnection:SQLConnection = new SQLConnection;
+			private function initDB():void{
+				var embededSessionDB:File = File.applicationDirectory.resolvePath("assets/database.sqlite");
+				var writeSessionDB:File = File.applicationStorageDirectory.resolvePath("assets/database.sqlite");
+				// This process is fatal for android 
+				if (!writeSessionDB.exists) {
+					embededSessionDB.copyTo(writeSessionDB);
+				}
+				var dbFile:File = writeSessionDB;
+				dbConnection.open(dbFile);
 			}
 
 		]]>
