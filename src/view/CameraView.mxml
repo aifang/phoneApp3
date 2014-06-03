@@ -30,7 +30,7 @@
 						//this.video=new Video(cameragroup.width, cameragroup.height);
 						
 						//video.attachCamera(cam);
-						
+						// http://blog.csdn.net/xinxin19881112/article/details/6799149
 						
 						this.uic=new UIComponent();
 						uic.addChild(video);
