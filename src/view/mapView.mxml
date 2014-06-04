@@ -258,6 +258,7 @@
 					drawMap.infoWindow.label="You clicked at "+xcorr+"/"+ycorr;
 					drawMap.infoWindow.show((event.mapPoint));//"show the click"
 					pPoint=event.mapPoint;
+					infoHeight.height = 50;
 				}
 			}
 			
@@ -289,6 +290,7 @@
 				myGraphicsLayer.add(graphics);
 				var event:MouseEvent=new MouseEvent(MouseEvent.CLICK);
 				graphics.addEventListener(MouseEvent.CLICK, showInfo);
+				infoHeight.height = 200;
 			}
 				
 			private function saveToDb():void{
@@ -327,7 +329,7 @@
 					
 					drawMap.infoWindow.label="AAAAA" + xcorr + ycorr;
 					drawMap.infoWindow.show(point);
-					
+					infoHeight.height = 200;
 					if(flag != 1){
 						initDB();
 						flag ++;
@@ -410,8 +412,7 @@
 			<esri:ArcGISDynamicMapServiceLayer url="http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/BloomfieldHillsMichigan/Parcels/MapServer"/>
 			<esri:GraphicsLayer id="myGraphicsLayer"/>
 			<esri:infoWindowContent >
-				<s:VGroup width="100" height="100">
-					<s:Label id="mediaPath" text="mylabel" width="100%" height="20"/>
+				<s:VGroup id = "infoHeight" width="100" height="50">
 					<s:Button id="takePictureBtn" width="45" height="45" label="button" click="takePictureBtn_clickHandler(event)"/>
 					<s:BitmapImage id="imgPicture"  width="100%" height="100%" />
 				</s:VGroup>
