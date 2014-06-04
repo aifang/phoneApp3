@@ -24,6 +24,8 @@
 			import com.esri.ags.utils.GeometryUtil;
 			import com.esri.ags.utils.WebMercatorUtil;
 			
+			import flash.sampler.NewObjectSample;
+			
 			import flashx.textLayout.debug.assert;
 			
 			import mx.collections.ArrayCollection;
@@ -150,19 +152,15 @@
 							toggleDrawBtn();
 							break;
 						}
-						case "CLOSE":
+						case "CLEAR":
 						{
-							toggleDrawBtn();
+							myGraphicsLayer.clear();
 							break;
 						}
 					}
 				}
 			}
 			
-			protected function clearMapGraphics():void{
-				myDrawTool.deactivate();
-				myGraphicsLayer.clear();
-			}
 			
 			protected function myDrawTool_drawEndHandler(event:DrawEvent):void
 			{
@@ -245,16 +243,22 @@
 			
 			private var xcorr:String;
 			private var ycorr:String;
+			[Bindable]
+			private var pPoint:MapPoint;
+			
+			private var flag1:Boolean = true;
 			
 			protected function drawMap_mapClickHandler(event:MapMouseEvent):void
 			{
-				
-				var pMapPoint:MapPoint=WebMercatorUtil.webMercatorToGeographic(event.mapPoint) as MapPoint;
-				xcorr = event.mapPoint.x.toFixed(1);
-				ycorr = event.mapPoint.y.toFixed(1)
-				drawMap.infoWindow.label="You clicked at "+xcorr+"/"+ycorr;
-				drawMap.infoWindow.show((event.mapPoint));//"show the click"
-				
+
+				if(flag1){
+					var pMapPoint:MapPoint=WebMercatorUtil.webMercatorToGeographic(event.mapPoint) as MapPoint;
+					xcorr = event.mapPoint.x.toFixed(1);
+					ycorr = event.mapPoint.y.toFixed(1);
+					drawMap.infoWindow.label="You clicked at "+xcorr+"/"+ycorr;
+					drawMap.infoWindow.show((event.mapPoint));//"show the click"
+					pPoint=event.mapPoint;
+				}
 			}
 			
 			protected  function mapClickmethod(event:MapMouseEvent):void
@@ -267,9 +271,9 @@
 			protected function takePictureBtn_clickHandler(event:MouseEvent):void
 			{
 //				navigator.pushView(CameraView);
-//				camera.launch(MediaType.IMAGE);
-//				camera.addEventListener(MediaEvent.COMPLETE, cameraUIComplete);
-				drawMap.removeEventListener(MapMouseEvent.MAP_CLICK,drawMap_mapClickHandler);
+
+				camera.launch(MediaType.IMAGE);
+				camera.addEventListener(MediaEvent.COMPLETE, cameraUIComplete);
 
 			}
 			
@@ -281,6 +285,10 @@
 				imgPicture.source=evt.data.file.url;
 				path = evt.data.file.url;
 				saveToDb();
+				var graphics:Graphic= new Graphic(pPoint,defaultSymbol);
+				myGraphicsLayer.add(graphics);
+				var event:MouseEvent=new MouseEvent(MouseEvent.CLICK);
+				graphics.addEventListener(MouseEvent.CLICK, showInfo);
 			}
 				
 			private function saveToDb():void{
@@ -297,22 +305,6 @@
 				stmt.parameters[':ycorr'] = ycorr;
 				stmt.parameters[':path'] = path;
 				stmt.execute();
-				
-				var stmt2:SQLStatement = new SQLStatement();
-				stmt2.sqlConnection = dbConnection;
-				stmt2.text = "SELECT * FROM photos WHERE username = (:username)";
-				stmt2.parameters[':username'] = loginView.usrName;
-				stmt2.execute();
-				
-				var result:SQLResult = stmt2.getResult(); 
-				
-				try{
-					var row:Object = result.data[0]; 
-					Alert.show(row.path);
-				}
-				catch(error:Error){
-					Alert.show("error");
-				}
 			}
 			
 			private var dbConnection:SQLConnection = new SQLConnection;
@@ -327,6 +319,51 @@
 				dbConnection.open(dbFile);
 			}
 
+			private function showInfo(event:MouseEvent):void {
+				if(!flag1){
+					var point:MapPoint=event.currentTarget.geometry as MapPoint;
+					var xcorr:String = point.x.toFixed(1);
+					var ycorr:String = point.y.toFixed(1);
+					
+					drawMap.infoWindow.label="AAAAA" + xcorr + ycorr;
+					drawMap.infoWindow.show(point);
+					
+					if(flag != 1){
+						initDB();
+						flag ++;
+					}
+					
+					var stmt:SQLStatement = new SQLStatement();
+					stmt.sqlConnection = dbConnection;
+					stmt.text = "SELECT * FROM photos WHERE xcorr = (:xcorr) AND ycorr = (:ycorr)";
+					stmt.parameters[':xcorr'] = xcorr;
+					stmt.parameters[':ycorr'] = ycorr;
+					stmt.execute();
+					var result:SQLResult = stmt.getResult(); 
+					
+					try{
+						var row:Object = result.data[0];
+						imgPicture.source = row.path;
+					}
+					catch(error:Error){
+						Alert.show("Read photo error");
+					}
+					
+				}
+				
+//				drawMap.infoWindow.show((event.));//"show the click"
+//				Alert.show("ssd","ss");
+			}
+			
+			private function toggleMode():void{
+				if(flag1){
+					toggleBtn.label="See";
+					flag1 = false;
+				}else{
+					toggleBtn.label="Add";
+					flag1 = true;
+				}
+			}
 		]]>
 	</fx:Script>
 
@@ -359,6 +396,13 @@
 						showBusyCursor="true"
 						url="http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/BloomfieldHillsMichigan/Parcels/MapServer/2"
 						useAMF="false"/>
+		<esri:SimpleMarkerSymbol id="defaultSymbol"
+								 alpha="0.5"
+								 color="0x0000FF"
+								 size="13"
+								 style="circle">
+			<esri:SimpleLineSymbol/>
+		</esri:SimpleMarkerSymbol>
 	</fx:Declarations>
 	<s:Group width="100%" height="100%">
 		
@@ -373,7 +417,6 @@
 				</s:VGroup>
 			</esri:infoWindowContent>
 		</esri:Map>
-		
 		<s:Group bottom="0" width="100%" height="45">
 			<Component:drawTools id="menu" y="{bottomBar.height}" click="menu_clickHandler(event)" />
 			<s:HGroup id="bottomBar" bottom="0" width="100%" height="45" gap="0">
@@ -384,7 +427,7 @@
 				<s:HGroup width="100%" height="100%" gap="0">
 					<s:Button id="drawToolsbtn" width="100%" height="100%" label="Draw" skinClass="Skins.loginButtonSkin"
 							  click="Drawbtn_clickHandler(event)"/>
-					<s:Button width="45" height="45" label="Clear" skinClass="Skins.loginButtonSkin" click="clearMapGraphics()"/>
+					<s:Button id="toggleBtn" width="45" height="45" label="Add" skinClass="Skins.loginButtonSkin" click="toggleMode()"/>
 				</s:HGroup>
 				
 			</s:HGroup>
