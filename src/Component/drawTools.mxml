@@ -44,9 +44,10 @@
 						mapView.drawType="ELLIPSE"
 						break;
 					}
-					case "closebtn":
+					case "clearbtn":
 					{
-						mapView.drawType="CLOSE"
+						
+						mapView.drawType="CLEAR"
 						break;
 					}
 					default:
@@ -86,7 +87,7 @@
 				  skinClass="Skins.loginButtonSkin"/>
 		<s:Button id="ellipsebtn" width="79" height="45" click="getButtonID(event)" icon="assets/i_draw_ellipse.png"
 				  skinClass="Skins.loginButtonSkin"/>
-		<s:Button id="closebtn" width="79" height="45" click="getButtonID(event)" label="Close"
+		<s:Button id="clearbtn" width="79" height="45" click="getButtonID(event)" label="Clear"
 				  skinClass="Skins.loginButtonSkin"/>
 	</s:TileGroup>
 </s:Group>
