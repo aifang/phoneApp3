@@ -251,30 +251,28 @@
 			protected function drawMap_mapClickHandler(event:MapMouseEvent):void
 			{
 
-				imgPicture.source = "";
+				//imgPicture.source = "";
 
 				if(flag1){
 					var pMapPoint:MapPoint=WebMercatorUtil.webMercatorToGeographic(event.mapPoint) as MapPoint;
 					xcorr = event.mapPoint.x.toFixed(1);
 					ycorr = event.mapPoint.y.toFixed(1);
-					drawMap.infoWindow.label="You clicked at "+xcorr+"/"+ycorr;
+					//drawMap.infoWindow.label="You clicked at "+xcorr+"/"+"\n"+ycorr;
+					drawMap.infoWindow.label="当前地点照片";
+					xcorrdinate.text = "x: "+xcorr;
+					ycorrdinate.text = "y: "+ycorr;
 					drawMap.infoWindow.show((event.mapPoint));//"show the click"
 					pPoint=event.mapPoint;
-					infoHeight.height = 50;
+					infoHeight.height = 83;
 				}
 			}
 			
-			protected  function mapClickmethod(event:MapMouseEvent):void
-			{
-				drawMap.addEventListener(MapMouseEvent.MAP_CLICK,drawMap_mapClickHandler);
-			}
+			
 
 			private var camera:CameraUI = new CameraUI();
 
 			protected function takePictureBtn_clickHandler(event:MouseEvent):void
 			{
-//				navigator.pushView(CameraView);
-
 				camera.launch(MediaType.IMAGE);
 				camera.addEventListener(MediaEvent.COMPLETE, cameraUIComplete);
 
@@ -284,7 +282,6 @@
 			
 			private function cameraUIComplete(evt:MediaEvent):void
 			{
-//				mediaPath.text= evt.data.file.url;
 				imgPicture.source=evt.data.file.url;
 				path = evt.data.file.url;
 				saveToDb();
@@ -329,7 +326,10 @@
 					var xcorr:String = point.x.toFixed(1);
 					var ycorr:String = point.y.toFixed(1);
 					
-					drawMap.infoWindow.label="AAAAA" + xcorr + ycorr;
+//					drawMap.infoWindow.label="AAAAA" + xcorr + ycorr;
+					drawMap.infoWindow.label="当前地点照片";
+					xcorrdinate.text = "x: "+xcorr;
+					ycorrdinate.text = "y: "+ycorr;
 					drawMap.infoWindow.show(point);
 					infoHeight.height = 200;
 					if(flag != 1){
@@ -352,11 +352,8 @@
 					catch(error:Error){
 						Alert.show("Read photo error");
 					}
-					
 				}
-				
-//				drawMap.infoWindow.show((event.));//"show the click"
-//				Alert.show("ssd","ss");
+
 			}
 			
 			private function toggleMode():void{
@@ -410,15 +407,25 @@
 	</fx:Declarations>
 	<s:Group width="100%" height="100%">
 		
-		<esri:Map id="drawMap" width="100%" height="100%" logoVisible="false" zoomSliderVisible="false" mapClick="mapClickmethod(event)" >
+		<esri:Map id="drawMap" width="100%" height="100%" logoVisible="false" zoomSliderVisible="false" mapClick="drawMap_mapClickHandler(event)" >
 			<esri:ArcGISDynamicMapServiceLayer url="http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/BloomfieldHillsMichigan/Parcels/MapServer"/>
 			<esri:GraphicsLayer id="myGraphicsLayer"/>
-			<esri:infoWindowContent >
-				<s:VGroup id = "infoHeight" width="100" height="50">
-
-					<s:BitmapImage id="imgPicture"  width="100%" height="100%" />
-					<s:Button id="takePictureBtn" width="80" height="45" label="button" skinClass="Skins.loginButtonSkin" click="takePictureBtn_clickHandler(event)"/>
-					
+			<esri:infoWindowContent  >
+				<s:VGroup id = "infoHeight" width="100" height="83">
+					<s:VGroup>
+						<s:Label id="xcorrdinate" fontSize="12"/>
+						<s:Label id="ycorrdinate" fontSize="12"/>
+					</s:VGroup>
+					<s:Group width="100%" height="100%">
+						<s:BitmapImage id="imgPicture"  width="100%" height="100%"
+									   scaleMode="letterbox" rotation="90"
+									   horizontalCenter="0" verticalCenter="0"/>
+					</s:Group>
+					<s:Group width="100%" height="45">
+						<s:Button id="takePictureBtn" width="80" height="45" label="拍照"
+								  click="takePictureBtn_clickHandler(event)" horizontalCenter="0"
+								  skinClass="Skins.loginButtonSkin" verticalCenter="0"/>
+					</s:Group>
 				</s:VGroup>
 			</esri:infoWindowContent>
 		</esri:Map>
